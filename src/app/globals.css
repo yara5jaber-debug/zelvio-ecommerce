@@ -1,0 +1,63 @@
+
+@import "tailwindcss";
+
+:root {
+  --background: #F3F2EE;
+  --foreground: #141414;
+  --text-secondary: #5A5852;
+  --border: #D9D7D0;
+  --accent: #E8431F;
+  --sale-price: #B3300F;
+
+  --image-sand: #E3DCD0;
+  --image-blue-gray: #D5DCE0;
+  --image-peach: #E5D3C9;
+  --image-sage: #D8DFD2;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-text-secondary: var(--text-secondary);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-sale-price: var(--sale-price);
+
+  --color-image-sand: var(--image-sand);
+  --color-image-blue-gray: var(--image-blue-gray);
+  --color-image-peach: var(--image-peach);
+  --color-image-sage: var(--image-sage);
+
+  --font-sans: var(--font-archivo), Arial, sans-serif;
+  --font-arabic: var(--font-ibm-arabic), sans-serif;
+
+}
+
+
+@layer base {
+  body {
+    font-family: var(--font-archivo), Arial, sans-serif;
+  }
+
+  :lang(ar) {
+    font-family: var(--font-ibm-arabic), sans-serif;
+  }
+
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.025em;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+
