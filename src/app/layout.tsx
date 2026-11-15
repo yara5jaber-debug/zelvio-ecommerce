@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { Archivo, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
+import BottomNavigation from "@/components/layout/BottomNavigation";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -31,10 +32,11 @@ export default function RootLayout({
     <html lang="en">
       
     <body
-      className={`${archivo.variable} ${ibmPlexArabic.variable} font-sans antialiased`}
-    >
+      className={`${archivo.variable} ${ibmPlexArabic.variable} font-sans antialiased pb-16 md:pb-0`}
+      >
 
         {children}
+        <BottomNavigation />
       </body>
     </html>
   );

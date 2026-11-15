@@ -4,6 +4,7 @@ import Header from "@/components/layout/Header";
 import CategoryNav from "@/components/layout/CategoryNav";
 import HeroSection from "@/components/home/HeroSection";
 import TrendingSection from "@/components/home/TrendingSection";
+import FeaturedCategories from "@/components/home/FeaturedCategories";
 
 export default function HomePage() {
   return (
@@ -12,9 +13,11 @@ export default function HomePage() {
       <Header />
       <CategoryNav />
 
+      
       <main id="main-content">
         <HeroSection />
         <TrendingSection />
+        <FeaturedCategories />
       </main>
     </>
   );
