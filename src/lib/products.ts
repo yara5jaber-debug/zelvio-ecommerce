@@ -12,37 +12,69 @@ type DummyJsonProduct = {
 
 type DummyJsonResponse = {
   products: DummyJsonProduct[];
-  total: number;
-  skip: number;
-  limit: number;
-};
-const productImageOverrides: Record<number, string> = {
-  // Example:
-  // 1: "/products/mascara.png",
 };
 
+const categoryMapping: Record<string, string> = {
+  smartphones: "Electronics",
+  laptops: "Electronics",
+  tablets: "Electronics",
+  "mobile-accessories": "Electronics",
+
+  "mens-shirts": "Fashion & Accessories",
+  "womens-dresses": "Fashion & Accessories",
+  "womens-bags": "Fashion & Accessories",
+
+  beauty: "Beauty & Personal Care",
+  fragrances: "Beauty & Personal Care",
+  "skin-care": "Beauty & Personal Care",
+
+  furniture: "Home & Kitchen",
+  "home-decoration": "Home & Kitchen",
+  "kitchen-accessories": "Home & Kitchen",
+
+  groceries: "Grocery & Food",
+};
+
+const selectedCategories = [
+  "smartphones",
+  "womens-bags",
+  "beauty",
+  "home-decoration",
+  "groceries",
+];
 
 export async function getProducts(): Promise<Product[]> {
-  const response = await fetch(
-    "https://dummyjson.com/products?limit=8",
-    {
-      next: { revalidate: 3600 },
-    }
+  const responses = await Promise.all(
+    selectedCategories.map(async (category) => {
+      const response = await fetch(
+        `https://dummyjson.com/products/category/${category}?limit=4`,
+        {
+          next: { revalidate: 3600 },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch products for ${category}`
+        );
+      }
+
+      const data: DummyJsonResponse = await response.json();
+
+      return data.products;
+    })
   );
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch products");
-  }
+  const products = responses.flat();
 
-  const data: DummyJsonResponse = await response.json();
-
-  return data.products.map((item) => {
+  return products.map((item) => {
     const hasDiscount = item.discountPercentage > 0;
 
     return {
       id: item.id,
       title: item.title,
-      category: item.category,
+      category:
+        categoryMapping[item.category] ?? item.category,
       price: item.price,
       originalPrice: hasDiscount
         ? Number(
@@ -52,7 +84,7 @@ export async function getProducts(): Promise<Product[]> {
             ).toFixed(2)
           )
         : undefined,
-      image: productImageOverrides[item.id] ?? item.thumbnail,
+      image: item.thumbnail,
     };
   });
 }

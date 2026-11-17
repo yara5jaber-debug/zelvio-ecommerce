@@ -1,8 +1,13 @@
 
 import type { Metadata } from "next";
 import { Archivo, IBM_Plex_Sans_Arabic } from "next/font/google";
-import "./globals.css";
+import { Suspense } from "react";
+
 import BottomNavigation from "@/components/layout/BottomNavigation";
+import Footer from "@/components/layout/Footer";
+import CartProvider from "@/components/cart/CartProvider";
+
+import "./globals.css";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -19,8 +24,12 @@ const ibmPlexArabic = IBM_Plex_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "E-Commerce Store",
-  description: "A modern multi-category shopping experience.",
+  title: {
+    default: "ZELVIO | The Everyday Edit",
+    template: "%s | ZELVIO",
+  },
+  description:
+    "Discover thoughtfully selected essentials across fashion, electronics, beauty, home and grocery.",
 };
 
 export default function RootLayout({
@@ -30,13 +39,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      
-    <body
-      className={`${archivo.variable} ${ibmPlexArabic.variable} font-sans antialiased pb-16 md:pb-0`}
+      <body
+        className={`${archivo.variable} ${ibmPlexArabic.variable} font-sans antialiased pb-16 md:pb-0`}
       >
+        <CartProvider>
+          {children}
 
-        {children}
-        <BottomNavigation />
+          <Footer />
+
+          <Suspense fallback={null}>
+            <BottomNavigation />
+          </Suspense>
+        </CartProvider>
       </body>
     </html>
   );
