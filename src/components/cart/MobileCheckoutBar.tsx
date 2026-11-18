@@ -1,6 +1,7 @@
 
 "use client";
 
+import Link from "next/link";
 import { useCart } from "@/components/cart/CartProvider";
 
 type MobileCheckoutBarProps = {
@@ -29,13 +30,13 @@ export default function MobileCheckoutBar({
           </p>
         </div>
 
-        <button
-          type="button"
-          disabled
-          className="min-h-12 flex-1 cursor-not-allowed bg-foreground px-4 text-xs font-semibold uppercase tracking-wider text-white opacity-50"
+        <Link
+          href="/checkout"
+          className="flex min-h-12 flex-1 items-center justify-center gap-2 bg-foreground px-4 text-center text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
-          Checkout — Soon
-        </button>
+          CHECKOUT
+          <span aria-hidden="true">↗</span>
+        </Link>
       </div>
     </div>
   );

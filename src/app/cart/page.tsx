@@ -272,16 +272,18 @@ export default function CartPage() {
                   </span>
                 </div>
 
-                <button
-                  type="button"
-                  disabled
-                  className="hidden min-h-12 w-full cursor-not-allowed bg-foreground px-4 text-xs font-semibold uppercase tracking-widest text-white opacity-50 md:block"
+                <Link
+                  href="/checkout"
+                  className="hidden min-h-12 w-full items-center justify-center bg-foreground px-4 text-xs font-semibold uppercase tracking-widest text-white transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent md:flex"
                 >
-                  Checkout — Coming Soon
-                </button>
+                  PROCEED TO CHECKOUT
+                  <span aria-hidden="true" className="ml-3">
+                    ↗
+                  </span>
+                </Link>
 
                 <p className="mt-4 text-center text-xs leading-5 text-text-secondary">
-                  Secure checkout will be available in a later stage.
+                  Checkout preview — orders and payments are not active yet.
                 </p>
               </div>
             </aside>
@@ -289,6 +291,7 @@ export default function CartPage() {
 
           <MobileCheckoutBar total={totalAfterDiscount} />
         </>
+
       )}
     </main>
   );
