@@ -4,7 +4,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
+
 import { useCart } from "@/components/cart/CartProvider";
+import { useWishlist } from "@/components/wishlist/WishlistProvider";
 
 type IconName = "home" | "shop" | "saved" | "bag" | "account";
 
@@ -96,7 +98,9 @@ function NavigationIcon({
 
 export default function BottomNavigation() {
   const pathname = usePathname();
+
   const { itemCount } = useCart();
+  const { count: wishlistCount } = useWishlist();
 
   const isHydrated = useSyncExternalStore(
     subscribe,
@@ -105,6 +109,7 @@ export default function BottomNavigation() {
   );
 
   const visibleItemCount = isHydrated ? itemCount : 0;
+  const visibleWishlistCount = isHydrated ? wishlistCount : 0;
 
   return (
     <nav
@@ -120,6 +125,13 @@ export default function BottomNavigation() {
                 pathname.startsWith(`${item.href}/`);
 
           const isCart = item.href === "/cart";
+          const isSaved = item.href === "/saved";
+
+          const badgeCount = isCart
+            ? visibleItemCount
+            : isSaved
+              ? visibleWishlistCount
+              : 0;
 
           return (
             <Link
@@ -129,7 +141,9 @@ export default function BottomNavigation() {
               aria-label={
                 isCart
                   ? `Bag, ${visibleItemCount} items`
-                  : item.label
+                  : isSaved
+                    ? `Saved, ${visibleWishlistCount} items`
+                    : item.label
               }
               className={`relative flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-[11px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent ${
                 isActive
@@ -147,14 +161,12 @@ export default function BottomNavigation() {
               <span className="relative inline-flex">
                 <NavigationIcon name={item.icon} />
 
-                {isCart && visibleItemCount > 0 && (
+                {(isCart || isSaved) && badgeCount > 0 && (
                   <span
                     aria-hidden="true"
                     className="absolute -right-3 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold leading-none text-white"
                   >
-                    {visibleItemCount > 99
-                      ? "99+"
-                      : visibleItemCount}
+                    {badgeCount > 99 ? "99+" : badgeCount}
                   </span>
                 )}
               </span>

@@ -1,6 +1,10 @@
 
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+
+import { useWishlist } from "@/components/wishlist/WishlistProvider";
 
 export type Product = {
   id: number;
@@ -18,6 +22,10 @@ type ProductCardProps = {
 export default function ProductCard({
   product,
 }: ProductCardProps) {
+  const { isSaved, toggleWishlist } = useWishlist();
+
+  const saved = isSaved(product.id);
+
   const hasDiscount =
     product.originalPrice !== undefined &&
     product.originalPrice > product.price;
@@ -31,7 +39,38 @@ export default function ProductCard({
     : 0;
 
   return (
-    <article className="group min-w-0">
+    <article className="group relative min-w-0">
+      {/* Wishlist button */}
+      <button
+        type="button"
+        onClick={() => toggleWishlist(product)}
+        aria-label={
+          saved
+            ? `Remove ${product.title} from wishlist`
+            : `Add ${product.title} to wishlist`
+        }
+        aria-pressed={saved}
+        className={`absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center border bg-background/95 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+          saved
+            ? "border-border text-accent"
+            : "border-border text-foreground hover:border-accent hover:text-accent"
+        }`}
+      >
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          fill={saved ? "currentColor" : "none"}
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-5 w-5 transition-transform duration-200 active:scale-90"
+        >
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" />
+        </svg>
+      </button>
+
+      {/* Product link */}
       <Link
         href={`/products/${product.id}`}
         className="block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"

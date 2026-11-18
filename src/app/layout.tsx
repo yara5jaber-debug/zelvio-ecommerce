@@ -3,9 +3,13 @@ import type { Metadata } from "next";
 import { Archivo, IBM_Plex_Sans_Arabic } from "next/font/google";
 import { Suspense } from "react";
 
+import AnnouncementBar from "@/components/layout/AnnouncementBar";
+import Header from "@/components/layout/Header";
+import CategoryNav from "@/components/layout/CategoryNav";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 import Footer from "@/components/layout/Footer";
 import CartProvider from "@/components/cart/CartProvider";
+import { WishlistProvider } from "@/components/wishlist/WishlistProvider";
 
 import "./globals.css";
 
@@ -43,13 +47,19 @@ export default function RootLayout({
         className={`${archivo.variable} ${ibmPlexArabic.variable} font-sans antialiased pb-16 md:pb-0`}
       >
         <CartProvider>
-          {children}
+          <WishlistProvider>
+            <AnnouncementBar />
+            <Header />
+            <CategoryNav />
 
-          <Footer />
+            {children}
 
-          <Suspense fallback={null}>
-            <BottomNavigation />
-          </Suspense>
+            <Footer />
+
+            <Suspense fallback={null}>
+              <BottomNavigation />
+            </Suspense>
+          </WishlistProvider>
         </CartProvider>
       </body>
     </html>
