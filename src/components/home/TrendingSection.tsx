@@ -1,10 +1,10 @@
 
 import Link from "next/link";
 import ProductCard from "@/components/products/ProductCard";
-import { mockProducts } from "@/data/mockProducts";
+import { getProducts } from "@/lib/products";
 
-export default function TrendingSection() {
-  const products = mockProducts;
+export default async function TrendingSection() {
+  const products = (await getProducts()).slice(0, 8);
 
   return (
     <section
