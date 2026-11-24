@@ -1,49 +1,43 @@
 
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+
 import { useCart } from "@/components/cart/CartProvider";
 import FreeShippingProgress from "@/components/cart/FreeShippingProgress";
 import PromoCode from "@/components/cart/PromoCode";
 import MobileCheckoutBar from "@/components/cart/MobileCheckoutBar";
 
-const FREE_SHIPPING_THRESHOLD = 100;
-const PROMO_CODE = "SAVE10";
-const DISCOUNT_RATE = 0.1;
+import {
+  calculatePriceSummary,
+  PROMO_CODE,
+} from "@/lib/pricing";
 
 export default function CartPage() {
   const {
     items,
     itemCount,
-    subtotal,
+    appliedCode,
+    setAppliedCode,
     removeItem,
     updateQuantity,
     clearCart,
   } = useCart();
 
-  const [appliedCode, setAppliedCode] = useState<string | null>(
-    null
-  );
+  const {
+    subtotal,
+    discount,
+    totalBeforeShipping,
+    freeShippingEligible,
+  } = calculatePriceSummary(items, appliedCode);
 
-  const hasDiscount = appliedCode === PROMO_CODE;
-
-  const discount = hasDiscount
-    ? Math.round(subtotal * DISCOUNT_RATE * 100) / 100
-    : 0;
-
-  const totalAfterDiscount = Math.max(
-    0,
-    Math.round((subtotal - discount) * 100) / 100
-  );
-
-  const hasFreeShipping =
-    subtotal >= FREE_SHIPPING_THRESHOLD;
+  const hasDiscount =
+    items.length > 0 &&
+    appliedCode?.trim().toUpperCase() === PROMO_CODE;
 
   function handleClearCart() {
     clearCart();
-    setAppliedCode(null);
   }
 
   return (
@@ -52,10 +46,15 @@ export default function CartPage() {
         aria-label="Breadcrumb"
         className="mb-8 flex items-center gap-2 text-xs text-text-secondary"
       >
-        <Link href="/" className="hover:text-foreground">
+        <Link
+          href="/"
+          className="hover:text-foreground"
+        >
           Home
         </Link>
+
         <span>/</span>
+
         <span className="text-foreground">
           Shopping Cart
         </span>
@@ -82,7 +81,7 @@ export default function CartPage() {
           <button
             type="button"
             onClick={handleClearCart}
-            className="text-xs font-semibold uppercase tracking-wider text-text-secondary underline underline-offset-4 hover:text-foreground"
+            className="min-h-11 text-xs font-semibold uppercase tracking-wider text-text-secondary underline underline-offset-4 hover:text-foreground focus-visible:outline-2 focus-visible:outline-accent"
           >
             Clear Cart
           </button>
@@ -114,7 +113,9 @@ export default function CartPage() {
               <div className="hidden border-b border-border pb-4 text-xs font-semibold uppercase tracking-wider text-text-secondary sm:grid sm:grid-cols-[minmax(0,1fr)_120px_100px]">
                 <span>Product</span>
                 <span>Quantity</span>
-                <span className="text-right">Total</span>
+                <span className="text-right">
+                  Total
+                </span>
               </div>
 
               <div>
@@ -154,7 +155,7 @@ export default function CartPage() {
                         <button
                           type="button"
                           onClick={() => removeItem(item.id)}
-                          className="mt-auto pt-3 text-xs text-text-secondary underline underline-offset-4 hover:text-sale-price"
+                          className="mt-auto min-h-11 pt-3 text-xs text-text-secondary underline underline-offset-4 hover:text-sale-price"
                         >
                           Remove
                         </button>
@@ -172,12 +173,12 @@ export default function CartPage() {
                             item.quantity - 1
                           )
                         }
-                        className="flex h-10 w-9 items-center justify-center text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+                        className="flex h-11 w-11 items-center justify-center text-foreground disabled:cursor-not-allowed disabled:opacity-30"
                       >
                         −
                       </button>
 
-                      <span className="flex h-10 w-10 items-center justify-center border-x border-border text-sm font-semibold text-foreground">
+                      <span className="flex h-11 w-11 items-center justify-center border-x border-border text-sm font-semibold text-foreground">
                         {item.quantity}
                       </span>
 
@@ -191,7 +192,7 @@ export default function CartPage() {
                             item.quantity + 1
                           )
                         }
-                        className="flex h-10 w-9 items-center justify-center text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+                        className="flex h-11 w-11 items-center justify-center text-foreground disabled:cursor-not-allowed disabled:opacity-30"
                       >
                         +
                       </button>
@@ -206,7 +207,7 @@ export default function CartPage() {
 
               <Link
                 href="/shop"
-                className="mt-8 inline-block text-xs font-semibold uppercase tracking-wider text-foreground underline underline-offset-4"
+                className="mt-8 inline-flex min-h-11 items-center text-xs font-semibold uppercase tracking-wider text-foreground underline underline-offset-4"
               >
                 Continue Shopping
               </Link>
@@ -240,7 +241,7 @@ export default function CartPage() {
                   {hasDiscount && (
                     <div className="flex justify-between gap-3 text-sm">
                       <span className="text-text-secondary">
-                        Discount (SAVE10)
+                        Discount ({PROMO_CODE})
                       </span>
 
                       <span className="font-semibold text-sale-price">
@@ -255,8 +256,8 @@ export default function CartPage() {
                     </span>
 
                     <span className="text-right text-foreground">
-                      {hasFreeShipping
-                        ? "Free Shipping"
+                      {freeShippingEligible
+                        ? "Eligible for free shipping"
                         : "Calculated at checkout"}
                     </span>
                   </div>
@@ -268,7 +269,7 @@ export default function CartPage() {
                   </span>
 
                   <span className="text-xl font-extrabold text-foreground">
-                    ${totalAfterDiscount.toFixed(2)}
+                    ${totalBeforeShipping.toFixed(2)}
                   </span>
                 </div>
 
@@ -277,7 +278,11 @@ export default function CartPage() {
                   className="hidden min-h-12 w-full items-center justify-center bg-foreground px-4 text-xs font-semibold uppercase tracking-widest text-white transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent md:flex"
                 >
                   PROCEED TO CHECKOUT
-                  <span aria-hidden="true" className="ml-3">
+
+                  <span
+                    aria-hidden="true"
+                    className="ml-3"
+                  >
                     ↗
                   </span>
                 </Link>
@@ -289,9 +294,10 @@ export default function CartPage() {
             </aside>
           </div>
 
-          <MobileCheckoutBar total={totalAfterDiscount} />
+          <MobileCheckoutBar
+            total={totalBeforeShipping}
+          />
         </>
-
       )}
     </main>
   );

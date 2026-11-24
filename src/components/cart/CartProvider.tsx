@@ -21,6 +21,8 @@ type CartContextValue = {
   items: CartItem[];
   itemCount: number;
   subtotal: number;
+  appliedCode: string | null;
+  setAppliedCode: (code: string | null) => void;
   addItem: (item: CartItem) => void;
   removeItem: (id: number) => void;
   updateQuantity: (id: number, quantity: number) => void;
@@ -28,6 +30,7 @@ type CartContextValue = {
 };
 
 const STORAGE_KEY = "ecommerce-cart";
+const PROMO_STORAGE_KEY = "zelvio-promo-code";
 
 const CartContext = createContext<CartContextValue | null>(null);
 
@@ -67,7 +70,7 @@ function getSnapshot(): CartItem[] {
     return EMPTY_CART;
   }
 
-  const raw = localStorage.getItem(STORAGE_KEY);
+  const raw = window.localStorage.getItem(STORAGE_KEY);
 
   if (raw === cachedRaw) {
     return cachedItems;
@@ -97,12 +100,32 @@ function getServerSnapshot(): CartItem[] {
   return EMPTY_CART;
 }
 
+function getPromoSnapshot(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.localStorage.getItem(PROMO_STORAGE_KEY);
+}
+
+function getServerPromoSnapshot(): string | null {
+  return null;
+}
+
+function notifyListeners() {
+  listeners.forEach((listener) => listener());
+}
+
 function subscribe(listener: () => void) {
   listeners.add(listener);
 
   function handleStorage(event: StorageEvent) {
-    if (event.key === STORAGE_KEY || event.key === null) {
-      listener();
+    if (
+      event.key === STORAGE_KEY ||
+      event.key === PROMO_STORAGE_KEY ||
+      event.key === null
+    ) {
+      notifyListeners();
     }
   }
 
@@ -115,9 +138,25 @@ function subscribe(listener: () => void) {
 }
 
 function saveCart(items: CartItem[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  window.localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(items)
+  );
 
-  listeners.forEach((listener) => listener());
+  notifyListeners();
+}
+
+function savePromoCode(code: string | null) {
+  if (code && code.trim()) {
+    window.localStorage.setItem(
+      PROMO_STORAGE_KEY,
+      code.trim().toUpperCase()
+    );
+  } else {
+    window.localStorage.removeItem(PROMO_STORAGE_KEY);
+  }
+
+  notifyListeners();
 }
 
 export default function CartProvider({
@@ -131,6 +170,12 @@ export default function CartProvider({
     getServerSnapshot
   );
 
+  const appliedCode = useSyncExternalStore(
+    subscribe,
+    getPromoSnapshot,
+    getServerPromoSnapshot
+  );
+
   const itemCount = items.reduce(
     (total, item) => total + item.quantity,
     0
@@ -140,6 +185,10 @@ export default function CartProvider({
     (total, item) => total + item.price * item.quantity,
     0
   );
+
+  function setAppliedCode(code: string | null) {
+    savePromoCode(code);
+  }
 
   function addItem(item: CartItem) {
     if (item.stock <= 0 || item.quantity <= 0) return;
@@ -178,9 +227,15 @@ export default function CartProvider({
   }
 
   function removeItem(id: number) {
-    saveCart(
-      getSnapshot().filter((item) => item.id !== id)
+    const updatedItems = getSnapshot().filter(
+      (item) => item.id !== id
     );
+
+    saveCart(updatedItems);
+
+    if (updatedItems.length === 0) {
+      savePromoCode(null);
+    }
   }
 
   function updateQuantity(id: number, quantity: number) {
@@ -201,6 +256,7 @@ export default function CartProvider({
 
   function clearCart() {
     saveCart([]);
+    savePromoCode(null);
   }
 
   return (
@@ -209,6 +265,8 @@ export default function CartProvider({
         items,
         itemCount,
         subtotal,
+        appliedCode,
+        setAppliedCode,
         addItem,
         removeItem,
         updateQuantity,
