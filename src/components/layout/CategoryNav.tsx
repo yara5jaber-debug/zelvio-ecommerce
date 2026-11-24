@@ -2,12 +2,30 @@
 import Link from "next/link";
 
 const categories = [
-  { label: "ALL", href: "/" },
-  { label: "ELECTRONICS", href: "/shop/electronics" },
-  { label: "FASHION", href: "/shop/fashion" },
-  { label: "BEAUTY", href: "/shop/beauty" },
-  { label: "HOME", href: "/shop/home" },
-  { label: "GROCERY", href: "/shop/grocery" },
+  {
+    label: "ALL",
+    href: "/shop",
+  },
+  {
+    label: "ELECTRONICS",
+    href: "/shop?category=electronics",
+  },
+  {
+    label: "FASHION",
+    href: "/shop?category=fashion",
+  },
+  {
+    label: "BEAUTY",
+    href: "/shop?category=beauty",
+  },
+  {
+    label: "HOME",
+    href: "/shop?category=home",
+  },
+  {
+    label: "GROCERY",
+    href: "/shop?category=grocery",
+  },
 ];
 
 export default function CategoryNav() {
@@ -17,16 +35,11 @@ export default function CategoryNav() {
       className="border-b border-border"
     >
       <div className="mx-auto flex max-w-7xl gap-7 overflow-x-auto px-4 md:px-8">
-        {categories.map((category, index) => (
+        {categories.map((category) => (
           <Link
-            key={category.href}
+            key={category.label}
             href={category.href}
-            aria-current={index === 0 ? "page" : undefined}
-            className={`flex min-h-12 shrink-0 items-center border-b-2 text-xs font-semibold tracking-wider ${
-              index === 0
-                ? "border-foreground text-foreground"
-                : "border-transparent text-text-secondary hover:text-foreground"
-            }`}
+            className="flex min-h-12 shrink-0 items-center border-b-2 border-transparent text-xs font-semibold tracking-wider text-text-secondary transition-colors hover:border-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             {category.label}
           </Link>

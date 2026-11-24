@@ -24,11 +24,7 @@ function getServerSnapshot() {
 }
 
 export default function CheckoutOrderSummary() {
-  const {
-    items,
-    itemCount,
-    appliedCode,
-  } = useCart();
+  const { items, itemCount, appliedCode } = useCart();
 
   const isHydrated = useSyncExternalStore(
     subscribe,
@@ -50,18 +46,17 @@ export default function CheckoutOrderSummary() {
   return (
     <aside
       aria-labelledby="summary-heading"
-      className="min-w-0 border border-border bg-background p-5 sm:p-6 lg:p-7"
+      className="min-w-0 border border-border bg-background p-4 sm:p-6 lg:p-7"
     >
-      {/* Heading */}
       <div className="flex items-center justify-between gap-3 border-b border-border pb-5">
         <h2
           id="summary-heading"
-          className="text-lg font-bold tracking-tight text-foreground"
+          className="min-w-0 text-lg font-bold tracking-tight text-foreground"
         >
           Order Summary
         </h2>
 
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-text-secondary">
+        <span className="shrink-0 text-[11px] font-semibold uppercase tracking-wider text-text-secondary">
           {isHydrated ? itemCount : "—"} ITEMS
         </span>
       </div>
@@ -110,12 +105,11 @@ export default function CheckoutOrderSummary() {
         </div>
       ) : (
         <>
-          {/* Products */}
           <div className="divide-y divide-border">
             {items.map((item) => (
               <article
                 key={item.id}
-                className="flex min-w-0 gap-4 py-5"
+                className="flex min-w-0 items-start gap-3 py-5 sm:gap-4"
               >
                 <Link
                   href={`/products/${item.id}`}
@@ -132,21 +126,19 @@ export default function CheckoutOrderSummary() {
                   )}
                 </Link>
 
-                <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
-                  <div>
-                    <Link
-                      href={`/products/${item.id}`}
-                      className="line-clamp-2 text-sm font-semibold leading-5 text-foreground hover:underline"
-                    >
-                      {item.title}
-                    </Link>
+                <div className="flex min-w-0 flex-1 flex-col gap-2">
+                  <Link
+                    href={`/products/${item.id}`}
+                    className="line-clamp-2 break-words text-sm font-semibold leading-5 text-foreground hover:underline"
+                  >
+                    {item.title}
+                  </Link>
 
-                    <p className="mt-2 text-xs text-text-secondary">
-                      Qty: {item.quantity}
-                    </p>
-                  </div>
+                  <p className="text-xs text-text-secondary">
+                    Qty: {item.quantity}
+                  </p>
 
-                  <p className="text-sm font-bold text-foreground">
+                  <p className="max-w-full break-all text-sm font-bold tabular-nums text-foreground">
                     ${(item.price * item.quantity).toFixed(2)}
                   </p>
                 </div>
@@ -154,36 +146,35 @@ export default function CheckoutOrderSummary() {
             ))}
           </div>
 
-          {/* Price breakdown */}
           <div className="space-y-4 border-t border-border py-6">
-            <div className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-text-secondary">
+            <div className="flex min-w-0 items-start justify-between gap-3 text-sm">
+              <span className="min-w-0 text-text-secondary">
                 Subtotal
               </span>
 
-              <span className="font-semibold text-foreground">
+              <span className="min-w-0 break-all text-right font-semibold tabular-nums text-foreground">
                 ${subtotal.toFixed(2)}
               </span>
             </div>
 
             {hasDiscount && (
-              <div className="flex items-center justify-between gap-4 text-sm">
-                <span className="text-text-secondary">
+              <div className="flex min-w-0 items-start justify-between gap-3 text-sm">
+                <span className="min-w-0 text-text-secondary">
                   Discount ({PROMO_CODE})
                 </span>
 
-                <span className="font-semibold text-sale-price">
+                <span className="min-w-0 break-all text-right font-semibold tabular-nums text-sale-price">
                   -${discount.toFixed(2)}
                 </span>
               </div>
             )}
 
-            <div className="flex items-start justify-between gap-4 text-sm">
-              <span className="text-text-secondary">
+            <div className="flex min-w-0 items-start justify-between gap-3 text-sm">
+              <span className="shrink-0 text-text-secondary">
                 Shipping
               </span>
 
-              <span className="text-right text-foreground">
+              <span className="min-w-0 text-right leading-5 text-foreground">
                 {freeShippingEligible
                   ? "Eligible for free shipping"
                   : "Calculated at checkout"}
@@ -196,14 +187,13 @@ export default function CheckoutOrderSummary() {
             </p>
           </div>
 
-          {/* Total */}
           <div className="border-t border-border pt-6">
-            <div className="flex items-end justify-between gap-4">
+            <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
               <span className="text-sm font-bold text-foreground">
                 Total before shipping
               </span>
 
-              <span className="text-2xl font-extrabold tracking-tight text-foreground">
+              <span className="max-w-full break-all text-2xl font-extrabold tracking-tight tabular-nums text-foreground sm:text-right">
                 ${totalBeforeShipping.toFixed(2)}
               </span>
             </div>
@@ -219,7 +209,6 @@ export default function CheckoutOrderSummary() {
             </p>
           </div>
 
-          {/* Return to cart */}
           <div className="mt-7 border-t border-border pt-5">
             <Link
               href="/cart"
